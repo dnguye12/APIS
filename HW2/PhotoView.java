@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -9,11 +11,15 @@ public class PhotoView extends JComponent {
     private PhotoModel model;
     private Image image;
     private Stroke currentStroke;
+    private TextBlock currentTextBlock;
 
     public PhotoView(PhotoModel model) {
         this.model = model;
         this.image = model.getImage();
         this.currentStroke = null;
+        this.currentTextBlock = null;
+        this.setFocusable(true);
+        this.requestFocusInWindow();
 
         int width = 420;
         int height = 420;
@@ -36,11 +42,18 @@ public class PhotoView extends JComponent {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (model.getIsFlipped()) {
-                    if(currentStroke != null) {
-                        model.addStroke(currentStroke);
+                    if(e.getButton() == MouseEvent.BUTTON1) {
+                        if (currentStroke != null) {
+                            model.addStroke(currentStroke);
+                        }
+                        currentStroke = new Stroke();
+                        currentStroke.addPoint(e.getPoint());
+                    }else if(e.getButton() == MouseEvent.BUTTON3){
+                        if(currentTextBlock != null) {
+                            model.addTextBlock(currentTextBlock);
+                        }
+                        currentTextBlock = new TextBlock(e.getPoint());
                     }
-                    currentStroke = new Stroke();
-                    currentStroke.addPoint(e.getPoint());
                 }
             }
         });
@@ -58,6 +71,15 @@ public class PhotoView extends JComponent {
                 if (model.getIsFlipped() && currentStroke != null) {
                     model.addStroke(currentStroke);
                     currentStroke = null;
+                    repaint();
+                }
+            }
+        });
+        this.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if(model.getIsFlipped() && currentTextBlock != null) {
+                    currentTextBlock.addCharacter(e.getKeyChar());
                     repaint();
                 }
             }
@@ -82,6 +104,13 @@ public class PhotoView extends JComponent {
             ArrayList<Stroke> strokes = this.model.getStrokes();
             for (Stroke stroke : strokes) {
                 this.drawStroke(g2d, stroke);
+            }
+
+            if(this.currentTextBlock != null) {
+                this.drawTextBlock(g2d, this.currentTextBlock);
+            }
+            for(TextBlock textBlock : this.model.getTextBlocks()) {
+                this.drawTextBlock(g2d, textBlock);
             }
         }
     }
@@ -119,6 +148,29 @@ public class PhotoView extends JComponent {
             Point p1 = stroke.getPoints().get(i - 1);
             Point p2 = stroke.getPoints().get(i);
             g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+        }
+    }
+
+    private void drawTextBlock(Graphics2D g2d, TextBlock textBlock) {
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font("San Francisco", Font.PLAIN, 14));
+        FontMetrics metrics = g2d.getFontMetrics();
+
+        Point pos = textBlock.getPos();
+        int x = pos.x;
+        int y = pos.y;
+        String text = textBlock.getText();
+
+        String[] words = text.split(" ");
+        for(String word : words) {
+            int wordWidth = metrics.stringWidth(word + " ");
+
+            if (x != pos.x && (x + wordWidth > this.getWidth())) {
+                x = pos.x;
+                y += metrics.getAscent() + metrics.getDescent() + metrics.getLeading();
+            }
+            g2d.drawString(word, x, y);
+            x += wordWidth;
         }
     }
 }

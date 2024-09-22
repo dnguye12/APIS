@@ -8,6 +8,7 @@ public class PhotoModel {
     private Image image;
     private boolean isFlipped;
     private ArrayList<Stroke> strokes;
+    private ArrayList<TextBlock> textBlocks;
 
     public PhotoModel(String path) {
         try {
@@ -17,6 +18,7 @@ public class PhotoModel {
         }
         this.isFlipped = false;
         this.strokes = new ArrayList<>();
+        this.textBlocks = new ArrayList<>();
     }
 
     public Image getImage() {
@@ -45,5 +47,11 @@ public class PhotoModel {
 
     public void clearStroke() {
         this.strokes.clear();
+    }
+    public ArrayList<TextBlock> getTextBlocks(){
+        return this.textBlocks;
+    }
+    public void addTextBlock(TextBlock textBlock) {
+        this.textBlocks.add(textBlock);
     }
 }
