@@ -1,26 +1,28 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class PhotoView extends JComponent {
     private final int PADDING = 20;
     private PhotoModel model;
     private Image image;
-    private Stroke currentStroke;
-    private TextBlock currentTextBlock;
 
     public PhotoView(PhotoModel model) {
         this.model = model;
         this.image = model.getImage();
-        this.currentStroke = null;
-        this.currentTextBlock = null;
         this.setFocusable(true);
         this.requestFocusInWindow();
 
+        this.handleSize();
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+        this.handleSize();
+        this.repaint();
+    }
+
+    private void handleSize() {
         int width = 420;
         int height = 420;
         if (this.image != null) {
@@ -29,62 +31,9 @@ public class PhotoView extends JComponent {
             height = (int) (helper.getHeight() + 4 * PADDING);
         }
         this.setPreferredSize(new Dimension(width, height));
-
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-                    model.toggleFlip();
-                    repaint();
-                }
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (model.getIsFlipped()) {
-                    if(e.getButton() == MouseEvent.BUTTON1) {
-                        if (currentStroke != null) {
-                            model.addStroke(currentStroke);
-                        }
-                        currentStroke = new Stroke();
-                        currentStroke.addPoint(e.getPoint());
-                    }else if(e.getButton() == MouseEvent.BUTTON3){
-                        if(currentTextBlock != null) {
-                            model.addTextBlock(currentTextBlock);
-                        }
-                        currentTextBlock = new TextBlock(e.getPoint());
-                    }
-                }
-            }
-        });
-        this.addMouseMotionListener(new MouseAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                if (model.getIsFlipped() && currentStroke != null) {
-                    currentStroke.addPoint(e.getPoint());
-                    repaint();
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (model.getIsFlipped() && currentStroke != null) {
-                    model.addStroke(currentStroke);
-                    currentStroke = null;
-                    repaint();
-                }
-            }
-        });
-        this.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if(model.getIsFlipped() && currentTextBlock != null) {
-                    currentTextBlock.addCharacter(e.getKeyChar());
-                    repaint();
-                }
-            }
-        });
     }
+
+
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -94,23 +43,46 @@ public class PhotoView extends JComponent {
         int frameW = this.getWidth();
         int frameH = this.getHeight();
 
+        Stroke currentStroke = this.model.getCurrentStroke();
+        Rectangle currentRectangle = this.model.getCurrentRectangle();
+        Ellipse currentEllipse = this.model.getCurrentEllipse();
+        TextBlock currentTextBlock = this.model.getCurrentTextBlock();;
+
         this.drawBackground(g2d, frameW, frameH);
-        this.drawContent(g2d, frameW, frameH);
+        if (this.image != null) {
+            this.drawContent(g2d, frameW, frameH);
 
-        if (this.model.getIsFlipped()) {
-            if (this.currentStroke != null) {
-                this.drawStroke(g2d, this.currentStroke);
-            }
-            ArrayList<Stroke> strokes = this.model.getStrokes();
-            for (Stroke stroke : strokes) {
-                this.drawStroke(g2d, stroke);
-            }
+            if (this.model.getIsFlipped()) {
+                if (currentStroke != null) {
+                    this.drawStroke(g2d, currentStroke);
+                }
+                ArrayList<Stroke> strokes = this.model.getStrokes();
+                for (Stroke stroke : strokes) {
+                    this.drawStroke(g2d, stroke);
+                }
 
-            if(this.currentTextBlock != null) {
-                this.drawTextBlock(g2d, this.currentTextBlock);
-            }
-            for(TextBlock textBlock : this.model.getTextBlocks()) {
-                this.drawTextBlock(g2d, textBlock);
+                if(currentRectangle != null) {
+                    this.drawRectangle(g2d, currentRectangle);
+                }
+                ArrayList<Rectangle> rectangles = this.model.getRectangles();
+                for(Rectangle rectangle : rectangles) {
+                    this.drawRectangle(g2d, rectangle);
+                }
+
+                if(currentEllipse != null) {
+                    this.drawEllipse(g2d, currentEllipse);
+                }
+                ArrayList<Ellipse> ellipses = this.model.getEllipses();
+                for(Ellipse ellipse : ellipses) {
+                    this.drawEllipse(g2d, ellipse);
+                }
+
+                if (currentTextBlock != null) {
+                    this.drawTextBlock(g2d, currentTextBlock);
+                }
+                for (TextBlock textBlock : this.model.getTextBlocks()) {
+                    this.drawTextBlock(g2d, textBlock);
+                }
             }
         }
     }
@@ -162,15 +134,33 @@ public class PhotoView extends JComponent {
         String text = textBlock.getText();
 
         String[] words = text.split(" ");
-        for(String word : words) {
+        for (String word : words) {
             int wordWidth = metrics.stringWidth(word + " ");
 
-            if (x != pos.x && (x + wordWidth > this.getWidth())) {
+            if (x != pos.x && (x + wordWidth > (this.getWidth() - 4 * PADDING))) {
                 x = pos.x;
                 y += metrics.getAscent() + metrics.getDescent() + metrics.getLeading();
             }
             g2d.drawString(word, x, y);
             x += wordWidth;
         }
+    }
+
+    private void drawRectangle(Graphics2D g2d, Rectangle rectangle) {
+        g2d.setColor(Color.BLACK);
+        g2d.setStroke(new BasicStroke(2));
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Point startPoint = rectangle.getTopLeft();
+        Dimension size = rectangle.getSize();
+        g2d.drawRect(startPoint.x, startPoint.y, size.width, size.height);
+    }
+
+    private void drawEllipse(Graphics2D g2d, Ellipse ellipse) {
+        g2d.setColor(Color.BLACK);
+        g2d.setStroke(new BasicStroke(2));
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Point startPoint = ellipse.getTopLeft();
+        Dimension size = ellipse.getSize();
+        g2d.drawOval(startPoint.x, startPoint.y, size.width, size.height);
     }
 }
