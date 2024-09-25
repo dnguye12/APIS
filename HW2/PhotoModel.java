@@ -10,6 +10,7 @@ public class PhotoModel {
     private boolean isFlipped;
     enum Shape {STROKE, RECTANGLE, ELLIPSE};
     private Shape currentShape;
+    private Color currentColor;
     private Stroke currentStroke;
     private ArrayList<Stroke> strokes;
     private Rectangle currentRectangle;
@@ -20,19 +21,13 @@ public class PhotoModel {
     private ArrayList<TextBlock> textBlocks;
 
     public PhotoModel(String path) {
-        if(!Objects.equals(path, "")) {
-            try {
-                this.image = ImageIO.read(new File(path));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        this.isFlipped = false;
+        this.setImage(path);
         this.strokes = new ArrayList<>();
         this.rectangles = new ArrayList<>();
         this.ellipses = new ArrayList<>();
         this.textBlocks = new ArrayList<>();
         this.currentShape = Shape.STROKE;
+        this.currentColor = Color.BLACK;
         this.currentStroke = null;
         this.currentRectangle = null;
         this.currentEllipse = null;
@@ -145,5 +140,12 @@ public class PhotoModel {
 
     public ArrayList<Ellipse> getEllipses() {
         return this.ellipses;
+    }
+    public void setCurrentColor(Color color) {
+        this.currentColor = color;
+    }
+
+    public Color getCurrentColor() {
+        return this.currentColor;
     }
 }

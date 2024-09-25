@@ -38,12 +38,13 @@ public class PhotoController {
                 if (photoModel.getIsFlipped()) {
                     if (e.getButton() == MouseEvent.BUTTON1) {
                         PhotoModel.Shape currentShape = photoModel.getCurrentShape();
+                        Color currentColor = photoModel.getCurrentColor();
                         if(currentShape == PhotoModel.Shape.STROKE) {
                             Stroke currentStroke = photoModel.getCurrentStroke();
                             if (currentStroke != null) {
                                 photoModel.addStroke(currentStroke);
                             }
-                            photoModel.setCurrentStroke(new Stroke());
+                            photoModel.setCurrentStroke(new Stroke(currentColor));
                             photoModel.addPointStroke(e.getPoint());
                             photoView.setCursor(Cursor.getDefaultCursor());
                         }else if(currentShape == PhotoModel.Shape.RECTANGLE) {
@@ -51,14 +52,14 @@ public class PhotoController {
                             if(currentRectangle != null) {
                                 photoModel.addRectangle(currentRectangle);
                             }
-                            photoModel.setCurrentRectangle(new Rectangle(e.getPoint(), e.getPoint()));
+                            photoModel.setCurrentRectangle(new Rectangle(e.getPoint(), e.getPoint(), currentColor));
                             photoView.setCursor(Cursor.getDefaultCursor());
                         }else if(currentShape == PhotoModel.Shape.ELLIPSE) {
                             Ellipse currentEllipse = photoModel.getCurrentEllipse();
                             if(currentEllipse != null) {
                                 photoModel.addEllipse(currentEllipse);
                             }
-                            photoModel.setCurrentEllipse(new Ellipse(e.getPoint(), e.getPoint()));
+                            photoModel.setCurrentEllipse(new Ellipse(e.getPoint(), e.getPoint(), currentColor));
                             photoView.setCursor(Cursor.getDefaultCursor());
                         }
                     } else if (e.getButton() == MouseEvent.BUTTON3) {
@@ -66,7 +67,7 @@ public class PhotoController {
                         if (currentTextBlock != null) {
                             photoModel.addTextBlock(currentTextBlock);
                         }
-                        photoModel.setCurrentTextBlock(new TextBlock(e.getPoint()));
+                        photoModel.setCurrentTextBlock(new TextBlock(e.getPoint(), photoModel.getCurrentColor()));
                         photoView.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
                         photoView.requestFocusInWindow();
                     }

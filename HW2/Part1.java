@@ -1,6 +1,10 @@
 import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 public class Part1 {
@@ -117,9 +121,30 @@ public class Part1 {
         shapeMenu.add(shapeRectangleBtn);
         shapeMenu.add(shapeEllipseBtn);
 
+        JMenu colorMenu = new JMenu("Color");
+        colorMenu.addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent e) {
+                Color selectedColor = JColorChooser.showDialog(frame, "Choose a Color", Color.BLACK);
+
+                con.getPhotoModel().setCurrentColor(selectedColor);
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent e) {
+
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent e) {
+
+            }
+        });
+
         menu.add(fileMenu);
         menu.add(viewMenu);
         menu.add(shapeMenu);
+        menu.add(colorMenu);
 
         return menu;
     }

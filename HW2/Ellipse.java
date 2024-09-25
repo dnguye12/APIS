@@ -3,10 +3,17 @@ import java.awt.*;
 public class Ellipse {
     private Point startPoint;
     private Point endPoint;
+    private Color color;
 
     public Ellipse(Point startPoint, Point endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
+        this.color = Color.BLACK;
+    }
+
+    public Ellipse(Point startPoint, Point endPoint, Color color) {
+        this(startPoint, endPoint);
+        this.color = color;
     }
 
     public void setEndPoint(Point point) {
@@ -21,5 +28,13 @@ public class Ellipse {
 
     public Dimension getSize() {
         return new Dimension(Math.abs(endPoint.x - startPoint.x), Math.abs(endPoint.y - startPoint.y));
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public Color getColor() {
+        return this.color;
     }
 }

@@ -113,8 +113,8 @@ public class PhotoView extends JComponent {
     }
 
     private void drawStroke(Graphics2D g2d, Stroke stroke) {
-        g2d.setColor(Color.BLACK);
         g2d.setStroke(new BasicStroke(2));
+        g2d.setColor(stroke.getColor());
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         for (int i = 1; i < stroke.getPoints().size(); i++) {
             Point p1 = stroke.getPoints().get(i - 1);
@@ -124,8 +124,8 @@ public class PhotoView extends JComponent {
     }
 
     private void drawTextBlock(Graphics2D g2d, TextBlock textBlock) {
-        g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("San Francisco", Font.PLAIN, 14));
+        g2d.setColor(textBlock.getColor());
         FontMetrics metrics = g2d.getFontMetrics();
 
         Point pos = textBlock.getPos();
@@ -147,8 +147,8 @@ public class PhotoView extends JComponent {
     }
 
     private void drawRectangle(Graphics2D g2d, Rectangle rectangle) {
-        g2d.setColor(Color.BLACK);
         g2d.setStroke(new BasicStroke(2));
+        g2d.setColor(rectangle.getColor());
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Point startPoint = rectangle.getTopLeft();
         Dimension size = rectangle.getSize();
@@ -156,8 +156,8 @@ public class PhotoView extends JComponent {
     }
 
     private void drawEllipse(Graphics2D g2d, Ellipse ellipse) {
-        g2d.setColor(Color.BLACK);
         g2d.setStroke(new BasicStroke(2));
+        g2d.setColor(ellipse.getColor());
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Point startPoint = ellipse.getTopLeft();
         Dimension size = ellipse.getSize();
