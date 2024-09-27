@@ -1,17 +1,25 @@
-import java.awt.*;
+package model;
 
-public class Ellipse {
+import java.awt.*;
+import java.io.Serializable;
+
+public class Rectangle implements Serializable {
+    private static final long serialVersionUID = 1L; //Used for saving and loading
+    //2 points to calculate top left point for drawing position
+    //Java swing draws from top left of shape
     private Point startPoint;
     private Point endPoint;
     private Color color;
+    private int strokeSize;
 
-    public Ellipse(Point startPoint, Point endPoint) {
+    public Rectangle(Point startPoint, Point endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
         this.color = Color.BLACK;
+        this.strokeSize = 2;
     }
 
-    public Ellipse(Point startPoint, Point endPoint, Color color) {
+    public Rectangle(Point startPoint, Point endPoint, Color color) {
         this(startPoint, endPoint);
         this.color = color;
     }
@@ -36,5 +44,13 @@ public class Ellipse {
 
     public Color getColor() {
         return this.color;
+    }
+
+    public int getStrokeSize() {
+        return this.strokeSize;
+    }
+
+    public void setStrokeSize(int strokeSize) {
+        this.strokeSize = strokeSize;
     }
 }

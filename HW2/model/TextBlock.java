@@ -1,13 +1,19 @@
+package model;
+
 import java.awt.*;
 
 public class TextBlock {
+    //Top left pos
     private Point pos;
+    //Use StringBuilder for better performance than pure string
     private StringBuilder text;
     private Color color;
+    private Font font;
     public TextBlock(Point pos) {
         this.pos = pos;
         this.text = new StringBuilder();
         this.color = Color.BLACK;
+        this.font =  new Font("Serif", Font.PLAIN, 14);
     }
     public TextBlock(Point pos, Color color) {
         this(pos);
@@ -31,5 +37,13 @@ public class TextBlock {
 
     public Color getColor() {
         return this.color;
+    }
+
+    public Font getFont() {
+        return this.font;
+    }
+
+    public void setFont(Font font) {
+        this.font = font;
     }
 }

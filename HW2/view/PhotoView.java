@@ -1,27 +1,42 @@
+package view;
+
+import model.Ellipse;
+import model.PhotoModel;
+import model.Stroke;
+import model.TextBlock;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
 public class PhotoView extends JComponent {
+    // PADDING cause CSS is cool
     private final int PADDING = 20;
+    //Use PhotoModel to get data of the current state of the application
     private PhotoModel model;
+    //Prevent calling model.getImage() too much.
     private Image image;
 
     public PhotoView(PhotoModel model) {
         this.model = model;
         this.image = model.getImage();
+        //Important for keyboard typing listeners
         this.setFocusable(true);
         this.requestFocusInWindow();
-
         this.handleSize();
+
+        this.revalidate();
+        this.repaint();
     }
 
     public void setImage(Image image) {
         this.image = image;
         this.handleSize();
+        this.revalidate();
         this.repaint();
     }
 
+    //PreferredSize according to Image Size
     private void handleSize() {
         int width = 420;
         int height = 420;
@@ -33,8 +48,6 @@ public class PhotoView extends JComponent {
         this.setPreferredSize(new Dimension(width, height));
     }
 
-
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -43,11 +56,13 @@ public class PhotoView extends JComponent {
         int frameW = this.getWidth();
         int frameH = this.getHeight();
 
+        //Get all elements that need drawing from model
         Stroke currentStroke = this.model.getCurrentStroke();
-        Rectangle currentRectangle = this.model.getCurrentRectangle();
+        model.Rectangle currentRectangle = this.model.getCurrentRectangle();
         Ellipse currentEllipse = this.model.getCurrentEllipse();
-        TextBlock currentTextBlock = this.model.getCurrentTextBlock();;
+        TextBlock currentTextBlock = this.model.getCurrentTextBlock();
 
+        //Draw background pattern
         this.drawBackground(g2d, frameW, frameH);
         if (this.image != null) {
             this.drawContent(g2d, frameW, frameH);
@@ -56,24 +71,24 @@ public class PhotoView extends JComponent {
                 if (currentStroke != null) {
                     this.drawStroke(g2d, currentStroke);
                 }
-                ArrayList<Stroke> strokes = this.model.getStrokes();
-                for (Stroke stroke : strokes) {
+                ArrayList<model.Stroke> strokes = this.model.getStrokes();
+                for (model.Stroke stroke : strokes) {
                     this.drawStroke(g2d, stroke);
                 }
 
-                if(currentRectangle != null) {
+                if (currentRectangle != null) {
                     this.drawRectangle(g2d, currentRectangle);
                 }
-                ArrayList<Rectangle> rectangles = this.model.getRectangles();
-                for(Rectangle rectangle : rectangles) {
+                ArrayList<model.Rectangle> rectangles = this.model.getRectangles();
+                for (model.Rectangle rectangle : rectangles) {
                     this.drawRectangle(g2d, rectangle);
                 }
 
-                if(currentEllipse != null) {
+                if (currentEllipse != null) {
                     this.drawEllipse(g2d, currentEllipse);
                 }
                 ArrayList<Ellipse> ellipses = this.model.getEllipses();
-                for(Ellipse ellipse : ellipses) {
+                for (Ellipse ellipse : ellipses) {
                     this.drawEllipse(g2d, ellipse);
                 }
 
@@ -87,6 +102,7 @@ public class PhotoView extends JComponent {
         }
     }
 
+    //Background pattern
     private void drawBackground(Graphics2D g2d, int frameW, int frameH) {
         g2d.setColor(Color.LIGHT_GRAY);
 
@@ -100,6 +116,8 @@ public class PhotoView extends JComponent {
         g2d.drawLine(PADDING, frameH - PADDING, frameW - PADDING, frameH - PADDING);
     }
 
+    //If the photo is not flipped draw the image
+    //Else draw a white background. Then everything else on top
     private void drawContent(Graphics2D g2d, int frameW, int frameH) {
         Dimension d = this.model.getImageSize();
         int helperX = (int) ((frameW - d.getWidth()) / 2);
@@ -112,8 +130,9 @@ public class PhotoView extends JComponent {
         }
     }
 
-    private void drawStroke(Graphics2D g2d, Stroke stroke) {
-        g2d.setStroke(new BasicStroke(2));
+    //Draw a stroke. Each stroke has different stroke size and color
+    private void drawStroke(Graphics2D g2d, model.Stroke stroke) {
+        g2d.setStroke(new BasicStroke(stroke.getStrokeSize()));
         g2d.setColor(stroke.getColor());
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         for (int i = 1; i < stroke.getPoints().size(); i++) {
@@ -123,8 +142,9 @@ public class PhotoView extends JComponent {
         }
     }
 
+    //Draw a text block. Each stroke has different font and color
     private void drawTextBlock(Graphics2D g2d, TextBlock textBlock) {
-        g2d.setFont(new Font("San Francisco", Font.PLAIN, 14));
+        g2d.setFont(textBlock.getFont());
         g2d.setColor(textBlock.getColor());
         FontMetrics metrics = g2d.getFontMetrics();
 
@@ -146,8 +166,8 @@ public class PhotoView extends JComponent {
         }
     }
 
-    private void drawRectangle(Graphics2D g2d, Rectangle rectangle) {
-        g2d.setStroke(new BasicStroke(2));
+    private void drawRectangle(Graphics2D g2d, model.Rectangle rectangle) {
+        g2d.setStroke(new BasicStroke(rectangle.getStrokeSize()));
         g2d.setColor(rectangle.getColor());
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Point startPoint = rectangle.getTopLeft();
@@ -156,7 +176,7 @@ public class PhotoView extends JComponent {
     }
 
     private void drawEllipse(Graphics2D g2d, Ellipse ellipse) {
-        g2d.setStroke(new BasicStroke(2));
+        g2d.setStroke(new BasicStroke(ellipse.getStrokeSize()));
         g2d.setColor(ellipse.getColor());
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Point startPoint = ellipse.getTopLeft();
